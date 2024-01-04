@@ -9,5 +9,8 @@ int main() {
 	}
 	DeterministicFiniteAutomaton deterministicFiniteAutomaton;
 	finDFA >> deterministicFiniteAutomaton;
-	std::cout << deterministicFiniteAutomaton;
+	if (deterministicFiniteAutomaton.VerifyAutomaton())
+		std::cout << deterministicFiniteAutomaton;
+	else
+		std::cout << "Invalid DFA!\n";
 }

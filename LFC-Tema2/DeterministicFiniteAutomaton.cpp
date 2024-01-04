@@ -73,3 +73,72 @@ std::ostream& operator<<(std::ostream& out, const DeterministicFiniteAutomaton& 
 	}
 	return out << "\n";
 }
+
+bool DeterministicFiniteAutomaton::VerifyAutomaton() const {
+	return CheckNonEmptyStates() && CheckNonEmptyAlphabet() && CheckValidInitialState() && CheckValidFinalStates() && CheckValidTransition();
+}
+
+bool DeterministicFiniteAutomaton::CheckNonEmptyStates() const {
+	if (m_states.empty()) {
+		std::cout << "Invalid automaton: empty set of states!\n";
+		return false;
+	}
+	return true;
+}
+
+bool DeterministicFiniteAutomaton::CheckNonEmptyAlphabet() const {
+	if (m_alphabet.empty()) {
+		std::cout << "Invalid automaton: empty alphabet!\n";
+		return false;
+	}
+	return true;
+}
+
+bool DeterministicFiniteAutomaton::CheckValidInitialState() const {
+	if (m_initialState.empty()) {
+		std::cout << "Invalid automaton: empty initial state!\n";
+		return false;
+	}
+	if (m_states.find(m_initialState) == m_states.end()) {
+		std::cout << "Invalid automaton: initial state not in set of states!\n";
+		return false;
+	}
+	return true;
+}
+
+bool DeterministicFiniteAutomaton::CheckValidFinalStates() const {
+	if (m_finalStates.empty()) {
+		std::cout << "Invalid automaton: empty set of final states!\n";
+		return false;
+	}
+	for (const auto& finalState : m_states)
+		if (m_states.find(finalState) == m_states.end()) {
+			std::cout << "Invalid automaton: final state not in set of states!\n";
+			return false;
+		}
+	return true;
+}
+
+bool DeterministicFiniteAutomaton::CheckValidTransition() const {
+	if (m_transition.empty()) {
+		std::cout << "Invalid automaton: empty transition function!\n";
+		return false;
+	}
+	for (const auto& [key, value] : m_transition) {
+		const auto& [currentState, symbol] = key;
+		const auto& nextState = value;
+		if (m_states.find(currentState) == m_states.end()) {
+			std::cout << "Invalid automaton: State " << currentState << "from transition function not in set of states!\n";
+			return false;
+		}
+		if (m_alphabet.find(symbol) == m_alphabet.end()) {
+			std::cout << "Invalid automaton: Symbol " << symbol << "from transition function not in alphabet!\n";
+			return false;
+		}
+		if (m_states.find(nextState) == m_states.end()) {
+			std::cout << "Invalid automaton: State " << nextState << "from transition function not in set of states!\n";
+			return false;
+		}
+	}
+	return true;
+}
