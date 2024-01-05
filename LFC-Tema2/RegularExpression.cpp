@@ -18,7 +18,7 @@ std::ostream& operator<<(std::ostream& out, const RegularExpression& RegularExpr
 }
 
 bool RegularExpression::VerifyExpression() const {
-	return VerifyNonEmpty() && VerifyValidCharAndOperators() && VerifyValidParentheses();
+	return VerifyNonEmpty() && VerifyValidOperandsAndOperators() && VerifyValidParentheses() && VerifyOperatorArity() && VerifyNonConsecutiveOperands();
 }
 
 bool RegularExpression::VerifyNonEmpty() const {
@@ -29,10 +29,10 @@ bool RegularExpression::VerifyNonEmpty() const {
 	return true;
 }
 
-bool RegularExpression::VerifyValidCharAndOperators() const {
+bool RegularExpression::VerifyValidOperandsAndOperators() const {
 	for (char ch : m_expression) {
-		if (!(std::isalnum(ch) || ch == '|' || ch == '.' || ch == '*' || ch == '(' || ch == ')')) {
-			std::cout << "Invalid regular expression: invalid characters!\n";
+		if (!std::isalnum(ch) && !IsOperator(ch)) {
+			std::cout << "Invalid regular expression: invalid characters or operators!\n";
 			return false;
 		}
 	}
@@ -53,4 +53,48 @@ bool RegularExpression::VerifyValidParentheses() const {
 		}
 	}
 	return parentheses.empty();
+}
+
+bool RegularExpression::VerifyOperatorArity() const {
+	for (size_t i = 0; i < m_expression.length(); ++i) {
+		char currentChar = m_expression[i];
+		if (currentChar == '*') {
+			if (i == 0 || !IsValidLeftOperand(m_expression[i - 1]) || (i != m_expression.length() - 1 && !IsValidRightOperandForStar(m_expression[i + 1]))) {
+				std::cout << "Invalid regular expression: invalid arity for '*' operator!\n";
+				return false;
+			}
+		}
+		else if (currentChar == '.' || currentChar == '|') {
+			if (i == 0 || i == m_expression.length() - 1 || !IsValidLeftOperand(m_expression[i - 1]) || !IsValidRightOperand(m_expression[i + 1])) {
+				std::cout << "Invalid regular expression: invalid arity for binary operator!\n";
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+bool RegularExpression::VerifyNonConsecutiveOperands() const  {
+	for (size_t i = 0; i < m_expression.length() - 1; ++i)
+		if (std::isalnum(m_expression[i]) && std::isalnum(m_expression[i + 1])) {
+			std::cout << "Invalid regular expression: consecutive operands!\n";
+			return false;
+		}
+	return true;
+}
+
+bool RegularExpression::IsOperator(char ch) const {
+	return ch == '|' || ch == '.' || ch == '*' || ch == '(' || ch == ')';
+}
+
+bool RegularExpression::IsValidLeftOperand(char ch) const {
+	return std::isalnum(ch) || ch == ')' || ch == '*';
+}
+
+bool RegularExpression::IsValidRightOperand(char ch) const {
+	return std::isalnum(ch) || ch == '(';
+}
+
+bool RegularExpression::IsValidRightOperandForStar(char ch) const {
+	return ch == '|' || ch == '.';
 }
