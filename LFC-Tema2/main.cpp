@@ -7,10 +7,15 @@ int main() {
 		std::cerr << "Error opening file\n";
 		return -1;
 	}
-	DeterministicFiniteAutomaton deterministicFiniteAutomaton;
-	finDFA >> deterministicFiniteAutomaton;
-	if (deterministicFiniteAutomaton.VerifyAutomaton())
-		std::cout << deterministicFiniteAutomaton;
+	DeterministicFiniteAutomaton dfa;
+	finDFA >> dfa;
+	if (dfa.VerifyAutomaton()) {
+		std::cout << dfa;
+		std::string word;
+		std::cout << "Enter word to check: ";
+		std::cin >> word;
+		std::cout << "Word is" << (dfa.CheckWord(dfa.GetInitialState(), word) ? " " : " not ") << "accepted!\n\n";
+	}
 	else
 		std::cout << "Invalid DFA!\n";
 }

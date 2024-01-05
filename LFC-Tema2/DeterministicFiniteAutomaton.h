@@ -37,4 +37,5 @@ public:
 	void SetTransition(const Transition& transition);
 
 	bool VerifyAutomaton() const;
+	bool CheckWord(const std::string& currentState, const std::string& word) const;
 };

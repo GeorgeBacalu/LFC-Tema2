@@ -142,3 +142,16 @@ bool DeterministicFiniteAutomaton::CheckValidTransition() const {
 	}
 	return true;
 }
+
+bool DeterministicFiniteAutomaton::CheckWord(const std::string& currentState, const std::string& word) const {
+	if (word.empty())
+		return m_finalStates.find(currentState) != m_finalStates.end();
+	char symbol = word[0];
+	auto it = m_transition.find({ currentState, std::string{ symbol } });
+	if (it != m_transition.end()) {
+		const auto& nextState = it->second;
+		return CheckWord(nextState, word.substr(1));
+	}
+	std::cout << "Deadlock!\n";
+	return false;
+}
