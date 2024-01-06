@@ -1,6 +1,8 @@
 #include <fstream>
 #include "RegularExpression.h"
 
+DeterministicFiniteAutomaton convertRegexToDFA(const std::string& expression);
+
 int main() {
 	DeterministicFiniteAutomaton dfa;
 	RegularExpression regex;
@@ -24,12 +26,19 @@ int main() {
 	}
 	else std::cout << "Invalid DFA!\n";
 	finRE >> regex;
-	if (regex.VerifyExpression()) {
-		std::cout << "Regex: " << regex << "\n";
-		std::string postfixForm = regex.ConvertToPostfixForm();
-		std::cout << "Postfix: " << postfixForm << "\n\n";
-		LambdaTransitionsAutomaton nfa = regex.convertToNFA(postfixForm);
-		std::cout << "Regex -> NFA:\n" << nfa << "\n\n";
-		std::cout << "Regex -> NFA -> DFA:\n" << regex.convertToDFA(nfa) << "\n";
-	}
+	convertRegexToDFA(regex.GetExpression());
+}
+
+DeterministicFiniteAutomaton convertRegexToDFA(const std::string& expression) {
+	RegularExpression regex{ expression };
+	if (!regex.VerifyExpression())
+		return {};
+	std::cout << "Regex: " << regex << "\n";
+	std::string postfixForm = regex.ConvertToPostfixForm();
+	std::cout << "Regex -> Postfix: " << postfixForm << "\n\n";
+	LambdaTransitionsAutomaton nfa = regex.convertToNFA(postfixForm);
+	std::cout << "Regex -> Postfix -> NFA:\n" << nfa << "\n\n";
+	DeterministicFiniteAutomaton dfa = regex.convertToDFA(nfa);
+	std::cout << "Regex -> Postfix -> NFA -> DFA:\n" << dfa << "\n\n";
+	return dfa;
 }
