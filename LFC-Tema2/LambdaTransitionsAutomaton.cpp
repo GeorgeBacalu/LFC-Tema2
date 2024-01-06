@@ -1,4 +1,5 @@
 #include "LambdaTransitionsAutomaton.h"
+#include <stack>
 
 LambdaTransitionsAutomaton::LambdaTransitionsAutomaton() : m_states{}, m_alphabet{}, m_initialState{}, m_finalStates{}, m_transition{} {}
 
@@ -150,9 +151,37 @@ LambdaTransitionsAutomaton LambdaTransitionsAutomaton::KleeneClosure(const Lambd
 }
 
 std::set<std::string> LambdaTransitionsAutomaton::GetLambdaClosure(const std::set<std::string>& states) const {
-	return std::set<std::string>();
+	std::set<std::string> lambdaClosure = states;
+	std::stack<std::string> stack;
+	// Initialize stack with input states
+	for (const std::string& state : states)
+		stack.push(state);
+	// Traverse DFS to be lambda-closure
+	while (!stack.empty()) {
+		std::string top = stack.top();
+		stack.pop();
+
+		// Consider all lambda-transitions for current state
+		auto transitionsIt = m_transition.find({ top, LAMBDA });
+		if (transitionsIt != m_transition.end()) // Traverse every state accessible through lambda-transitions
+			for (const std::string& reachableState : transitionsIt->second) // If state is not already in lambda-closure, add it and push it to stack
+				if (lambdaClosure.insert(reachableState).second)
+					stack.push(reachableState);
+	}
+	return lambdaClosure;
 }
 
+// This method applies a transition on a given symbol for a set of states and returns the set of states that can be reached. 
+// In the context of a finite automaton with lambda-transitions, this would mean finding all the states that can be reached from the current states with a certain symbol, without including lambda-transitions
 std::set<std::string> LambdaTransitionsAutomaton::Move(const std::set<std::string>& states, const std::string& symbol) const {
-	return std::set<std::string>();
+	std::set<std::string> resultStates;
+	for (const auto& state : states) {
+		// Search for transitions with given symbol from current state
+		auto transitions = m_transition.find({ state, symbol });
+		if (transitions != m_transition.end()) {
+			const auto& nextState = transitions->second;
+			resultStates.insert(nextState.begin(), nextState.end());
+		}
+	}
+	return resultStates;
 }
