@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,10 +129,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DeterministicFiniteAutomaton.cpp" />
+    <ClCompile Include="LambdaTransitionsAutomaton.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="RegularExpression.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DeterministicFiniteAutomaton.h" />
+    <ClInclude Include="LambdaTransitionsAutomaton.h" />
+    <ClInclude Include="RegularExpression.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="inputRE.txt" />
+    <Text Include="outputDFA.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
