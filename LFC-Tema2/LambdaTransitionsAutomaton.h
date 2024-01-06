@@ -37,4 +37,7 @@ public:
 	LambdaTransitionsAutomaton Union(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B, int& nrStates);
 	LambdaTransitionsAutomaton Concatenate(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B);
 	LambdaTransitionsAutomaton KleeneClosure(const LambdaTransitionsAutomaton& A, int& nrStates);
+
+	std::set<std::string> GetLambdaClosure(const std::set<std::string>& states) const;
+	std::set<std::string> Move(const std::set<std::string>& states, const std::string& symbol) const;
 };

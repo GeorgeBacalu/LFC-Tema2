@@ -25,11 +25,11 @@ public:
 	friend std::istream& operator>>(std::istream& in, DeterministicFiniteAutomaton& deterministicFiniteAutomaton);
 	friend std::ostream& operator<<(std::ostream& out, const DeterministicFiniteAutomaton& deterministicFiniteAutomaton);
 
-	const std::set<std::string>& GetStates() const;
+	std::set<std::string> GetStates() const;
 	const std::set<std::string>& GetAlphabet() const;
 	const std::string& GetInitialState() const;
-	const std::set<std::string>& GetFinalStates() const;
-	const TransitionDFA& GetTransition() const;
+	std::set<std::string> GetFinalStates() const;
+	TransitionDFA GetTransition() const;
 	void SetStates(const std::set<std::string>& states);
 	void SetAlphabet(const std::set<std::string>& alphabet);
 	void SetInitialState(const std::string& initialState);

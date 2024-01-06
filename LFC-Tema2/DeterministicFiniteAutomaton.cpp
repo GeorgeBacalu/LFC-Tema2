@@ -5,15 +5,15 @@ DeterministicFiniteAutomaton::DeterministicFiniteAutomaton() : m_states{}, m_alp
 DeterministicFiniteAutomaton::DeterministicFiniteAutomaton(const std::set<std::string>& states, const std::set<std::string>& alphabet, const std::string& initialState, const std::set<std::string>& finalStates, const TransitionDFA& transition)
 	: m_states{ states }, m_alphabet{ alphabet }, m_initialState{ initialState }, m_finalStates{ finalStates }, m_transition{ transition } {}
 
-const std::set<std::string>& DeterministicFiniteAutomaton::GetStates() const { return m_states; }
+std::set<std::string> DeterministicFiniteAutomaton::GetStates() const { return m_states; }
 
 const std::set<std::string>& DeterministicFiniteAutomaton::GetAlphabet() const { return m_alphabet; }
 
 const std::string& DeterministicFiniteAutomaton::GetInitialState() const { return m_initialState; }
 
-const std::set<std::string>& DeterministicFiniteAutomaton::GetFinalStates() const { return m_finalStates; }
+std::set<std::string> DeterministicFiniteAutomaton::GetFinalStates() const { return m_finalStates; }
 
-const TransitionDFA& DeterministicFiniteAutomaton::GetTransition() const { return m_transition; }
+TransitionDFA DeterministicFiniteAutomaton::GetTransition() const { return m_transition; }
 
 void DeterministicFiniteAutomaton::SetStates(const std::set<std::string>& states) { m_states = states; }
 

@@ -148,3 +148,11 @@ LambdaTransitionsAutomaton LambdaTransitionsAutomaton::KleeneClosure(const Lambd
 	}
 	return B;
 }
+
+std::set<std::string> LambdaTransitionsAutomaton::GetLambdaClosure(const std::set<std::string>& states) const {
+	return std::set<std::string>();
+}
+
+std::set<std::string> LambdaTransitionsAutomaton::Move(const std::set<std::string>& states, const std::string& symbol) const {
+	return std::set<std::string>();
+}

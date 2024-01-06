@@ -1,4 +1,5 @@
 #include "RegularExpression.h"
+#include <queue>
 
 RegularExpression::RegularExpression() : m_expression{} {}
 
@@ -174,5 +175,51 @@ LambdaTransitionsAutomaton RegularExpression::convertToNFA(const std::string& po
 }
 
 DeterministicFiniteAutomaton RegularExpression::convertToDFA(const LambdaTransitionsAutomaton& nfa) const {
-	return DeterministicFiniteAutomaton();
+	DeterministicFiniteAutomaton dfa;
+	std::set<std::set<std::string>> dfaStates;
+	std::map<std::set<std::string>, std::string> dfaStatesMap;
+	std::queue<std::set<std::string>> statesToProcessQueue;
+	int nrStates = 0;
+
+	// Calculate lambda-closure of NFA initial state and add it to DFA states
+	std::set<std::string> initialStateSet = { nfa.GetInitialState() };
+	std::set<std::string> startState = nfa.GetLambdaClosure(initialStateSet);
+	dfaStates.insert(startState);
+	statesToProcessQueue.push(startState);
+	std::string startStateName = "q" + std::to_string(nrStates++);
+	dfaStatesMap[startState] = startStateName;
+	dfa.SetInitialState(startStateName);
+
+	// Process states from queue
+	while (!statesToProcessQueue.empty()) {
+		std::set<std::string> currentState = statesToProcessQueue.front();
+		statesToProcessQueue.pop();
+		for (std::string symbol : nfa.GetAlphabet()) {
+			// Apply transition for the symbol on the entire current set and calculate lambda-closure
+			std::set<std::string> nextState = nfa.GetLambdaClosure(nfa.Move(currentState, symbol));
+
+			// If states is not in DFA, we add it
+			if (dfaStates.find(nextState) == dfaStates.end() && !nextState.empty()) {
+				dfaStates.insert(nextState);
+				statesToProcessQueue.push(nextState);
+				std::string nextStateName = "q" + std::to_string(nrStates++);
+				dfaStatesMap[nextState] = nextStateName;
+				dfa.GetStates().insert(nextStateName);
+			}
+
+			// Add transition to DFA
+			std::string currentStateName = dfaStatesMap[currentState];
+			std::string nextStateName = nextState.empty() ? "dead state" : dfaStatesMap[nextState];
+			dfa.GetTransition()[{currentStateName, symbol}] = nextStateName;
+		}
+	}
+
+	// Set final state for DFA
+	for (const auto& state : dfaStates)
+		for (const auto& nfaState : state)
+			if (nfa.GetFinalStates().find(nfaState) != nfa.GetFinalStates().end()) {
+				dfa.GetFinalStates().insert(dfaStatesMap[state]);
+				break;
+			}
+	return dfa;
 }
