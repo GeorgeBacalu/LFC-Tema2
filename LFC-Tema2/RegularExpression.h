@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <string>
+#include <stack>
+#include "LambdaTransitionsAutomaton.h"
+#include "DeterministicFiniteAutomaton.h"
 
 class RegularExpression {
 	std::string m_expression;
@@ -27,5 +30,7 @@ public:
 	void SetExpression(const std::string& expression);
 
 	bool VerifyExpression() const;
-	std::string ConvertToPostfix() const;
+	std::string ConvertToPostfixForm() const;
+	LambdaTransitionsAutomaton convertToNFA(const std::string& postfixForm) const;
+	DeterministicFiniteAutomaton convertToDFA(const LambdaTransitionsAutomaton& nfa) const;
 };

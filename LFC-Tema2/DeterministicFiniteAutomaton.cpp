@@ -2,7 +2,7 @@
 
 DeterministicFiniteAutomaton::DeterministicFiniteAutomaton() : m_states{}, m_alphabet{}, m_initialState{}, m_finalStates{}, m_transition{} {}
 
-DeterministicFiniteAutomaton::DeterministicFiniteAutomaton(const std::set<std::string>& states, const std::set<std::string>& alphabet, const std::string& initialState, const std::set<std::string>& finalStates, const Transition& transition)
+DeterministicFiniteAutomaton::DeterministicFiniteAutomaton(const std::set<std::string>& states, const std::set<std::string>& alphabet, const std::string& initialState, const std::set<std::string>& finalStates, const TransitionDFA& transition)
 	: m_states{ states }, m_alphabet{ alphabet }, m_initialState{ initialState }, m_finalStates{ finalStates }, m_transition{ transition } {}
 
 const std::set<std::string>& DeterministicFiniteAutomaton::GetStates() const { return m_states; }
@@ -13,7 +13,7 @@ const std::string& DeterministicFiniteAutomaton::GetInitialState() const { retur
 
 const std::set<std::string>& DeterministicFiniteAutomaton::GetFinalStates() const { return m_finalStates; }
 
-const Transition& DeterministicFiniteAutomaton::GetTransition() const { return m_transition; }
+const TransitionDFA& DeterministicFiniteAutomaton::GetTransition() const { return m_transition; }
 
 void DeterministicFiniteAutomaton::SetStates(const std::set<std::string>& states) { m_states = states; }
 
@@ -23,7 +23,7 @@ void DeterministicFiniteAutomaton::SetInitialState(const std::string& initialSta
 
 void DeterministicFiniteAutomaton::SetFinalStates(const std::set<std::string>& finalStates) { m_finalStates = finalStates; }
 
-void DeterministicFiniteAutomaton::SetTransition(const Transition& transition) { m_transition = transition; }
+void DeterministicFiniteAutomaton::SetTransition(const TransitionDFA& transition) { m_transition = transition; }
 
 std::istream& operator>>(std::istream& in, DeterministicFiniteAutomaton& deterministicFiniteAutomaton) {
 	int nrStates, nrValuesAlphabet, nrFinalStates, nrTransitions;
@@ -55,7 +55,7 @@ std::istream& operator>>(std::istream& in, DeterministicFiniteAutomaton& determi
 }
 
 std::ostream& operator<<(std::ostream& out, const DeterministicFiniteAutomaton& deterministicFiniteAutomaton) {
-	out << "AFN = ({ ";
+	out << "DFA = ({ ";
 	for (const auto& state : deterministicFiniteAutomaton.m_states)
 		out << state << " ";
 	out << "}, { ";

@@ -1,5 +1,4 @@
 #include "RegularExpression.h"
-#include <stack>
 
 RegularExpression::RegularExpression() : m_expression{} {}
 
@@ -108,22 +107,22 @@ int RegularExpression::GetPriority(char op) const {
 	}
 }
 
-std::string RegularExpression::ConvertToPostfix() const {
+std::string RegularExpression::ConvertToPostfixForm() const {
 	if (!VerifyExpression()) {
-		std::cout << "Invalid regular expression: cannot convert to postfix!\n";
+		std::cout << "Invalid regular expression: cannot convert to postfix form!\n";
 		return "";
 	}
-	std::stack<char> operators, postfix;
+	std::stack<char> operators, postfixForm;
 	for (char current : m_expression) {
-		if (isspace(current)) 
+		if (isspace(current))
 			continue;
 		if (std::isalnum(current))
-			postfix.push(current);
+			postfixForm.push(current);
 		else if (current == '(')
 			operators.push(current);
 		else if (current == ')') {
 			while (!operators.empty() && operators.top() != '(') {
-				postfix.push(operators.top());
+				postfixForm.push(operators.top());
 				operators.pop();
 			}
 			if (!operators.empty())
@@ -131,21 +130,49 @@ std::string RegularExpression::ConvertToPostfix() const {
 		}
 		else {
 			while (!operators.empty() && GetPriority(operators.top()) >= GetPriority(current)) {
-				postfix.push(operators.top());
+				postfixForm.push(operators.top());
 				operators.pop();
 			}
 			operators.push(current);
 		}
 	}
 	while (!operators.empty()) {
-		postfix.push(operators.top());
+		postfixForm.push(operators.top());
 		operators.pop();
 	}
 	std::string result;
-	while (!postfix.empty()) {
-		result += postfix.top();
-		postfix.pop();
+	while (!postfixForm.empty()) {
+		result += postfixForm.top();
+		postfixForm.pop();
 	}
 	std::reverse(result.begin(), result.end());
 	return result;
+}
+
+LambdaTransitionsAutomaton RegularExpression::convertToNFA(const std::string& postfixForm) const {
+	std::stack< LambdaTransitionsAutomaton> stackAutomatons;
+	int nrStates = 0;
+	for (char ch : postfixForm) {
+		if (std::isalnum(ch))
+			stackAutomatons.push(LambdaTransitionsAutomaton().CreateBasicAutomaton(ch, nrStates));
+		else if (ch == '|') {
+			LambdaTransitionsAutomaton B = stackAutomatons.top(); stackAutomatons.pop();
+			LambdaTransitionsAutomaton A = stackAutomatons.top(); stackAutomatons.pop();
+			stackAutomatons.push(LambdaTransitionsAutomaton().Union(A, B, nrStates));
+		}
+		else if (ch == '.') {
+			LambdaTransitionsAutomaton B = stackAutomatons.top(); stackAutomatons.pop();
+			LambdaTransitionsAutomaton A = stackAutomatons.top(); stackAutomatons.pop();
+			stackAutomatons.push(LambdaTransitionsAutomaton().Concatenate(A, B, nrStates));
+		}
+		else if (ch == '*') {
+			LambdaTransitionsAutomaton A = stackAutomatons.top();
+			stackAutomatons.push(LambdaTransitionsAutomaton().KleeneClosure(A, nrStates));
+		}
+	}
+	return stackAutomatons.top();
+}
+
+DeterministicFiniteAutomaton RegularExpression::convertToDFA(const LambdaTransitionsAutomaton& nfa) const {
+	return DeterministicFiniteAutomaton();
 }

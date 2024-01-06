@@ -1,6 +1,5 @@
 #include <fstream>
 #include "RegularExpression.h"
-#include "DeterministicFiniteAutomaton.h"
 
 int main() {
 	DeterministicFiniteAutomaton dfa;
@@ -27,6 +26,10 @@ int main() {
 	finRE >> regex;
 	if (regex.VerifyExpression()) {
 		std::cout << "Regex: " << regex << "\n";
-		std::cout << "Postfix: " << regex.ConvertToPostfix() << "\n";
+		std::string postfixForm = regex.ConvertToPostfixForm();
+		std::cout << "Postfix: " << postfixForm << "\n\n";
+		LambdaTransitionsAutomaton nfa = regex.convertToNFA(postfixForm);
+		std::cout << "Regex -> NFA:\n" << nfa << "\n\n";
+		std::cout << "Regex -> NFA -> DFA:\n" << regex.convertToDFA(nfa) << "\n";
 	}
 }
