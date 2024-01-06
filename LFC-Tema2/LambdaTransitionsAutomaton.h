@@ -9,6 +9,8 @@
 using TransitionNFA = std::map<std::pair<std::string, std::string>, std::vector<std::string>>;
 
 class LambdaTransitionsAutomaton {
+	const std::string LAMBDA = "@";
+
 	std::set<std::string> m_states;
 	std::set<std::string> m_alphabet;
 	std::string m_initialState;
@@ -33,6 +35,6 @@ public:
 
 	LambdaTransitionsAutomaton CreateBasicAutomaton(char ch, int& nrStates);
 	LambdaTransitionsAutomaton Union(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B, int& nrStates);
-	LambdaTransitionsAutomaton Concatenate(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B, int& nrStates);
+	LambdaTransitionsAutomaton Concatenate(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B);
 	LambdaTransitionsAutomaton KleeneClosure(const LambdaTransitionsAutomaton& A, int& nrStates);
 };

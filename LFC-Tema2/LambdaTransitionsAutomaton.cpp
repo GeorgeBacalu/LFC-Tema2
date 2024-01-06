@@ -75,17 +75,76 @@ std::ostream& operator<<(std::ostream& out, const LambdaTransitionsAutomaton& la
 }
 
 LambdaTransitionsAutomaton LambdaTransitionsAutomaton::CreateBasicAutomaton(char ch, int& nrStates) {
-	return LambdaTransitionsAutomaton();
+	if (!isalnum(ch)) {
+		std::cout << "Invalid automaton: invalid symbol!\n";
+	}
+	std::string newInitialState = "q_" + std::to_string(nrStates++);
+	std::string newFinalState = "q_" + std::to_string(nrStates++);
+	std::string symbol = std::string{ ch };
+
+	std::set<std::string> states = { newInitialState, newFinalState };
+	std::set<std::string> alphabet = { symbol };
+	std::string initialState = newInitialState;
+	std::set<std::string> finalStates = { newFinalState };
+	TransitionNFA transition = { {{newInitialState, symbol}, {newFinalState}} };
+	return { states, alphabet, initialState, finalStates, transition };
 }
 
 LambdaTransitionsAutomaton LambdaTransitionsAutomaton::Union(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B, int& nrStates) {
-	return LambdaTransitionsAutomaton();
+	LambdaTransitionsAutomaton C;
+	C.m_states.insert(A.m_states.begin(), A.m_states.end());
+	C.m_states.insert(B.m_states.begin(), B.m_states.end());
+	C.m_alphabet.insert(A.m_alphabet.begin(), A.m_alphabet.end());
+	C.m_alphabet.insert(B.m_alphabet.begin(), B.m_alphabet.end());
+	std::string newInitialState = "q_" + std::to_string(nrStates++);
+	std::string newFinalState = "q_" + std::to_string(nrStates++);
+	C.m_initialState = newInitialState;
+	C.m_finalStates.insert(newFinalState);
+	C.m_transition.insert(A.m_transition.begin(), A.m_transition.end());
+	C.m_transition.insert(B.m_transition.begin(), B.m_transition.end());
+	C.m_transition[{newInitialState, LAMBDA}].push_back(A.m_initialState);
+	C.m_transition[{newInitialState, LAMBDA}].push_back(B.m_initialState);
+	for (const auto& finalStateA : A.m_finalStates)
+		C.m_transition[{finalStateA, LAMBDA}].push_back(newFinalState);
+	for (const auto& finalStateB : B.m_finalStates)
+		C.m_transition[{finalStateB, LAMBDA}].push_back(newFinalState);
+	return C;
 }
 
-LambdaTransitionsAutomaton LambdaTransitionsAutomaton::Concatenate(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B, int& nrStates) {
-	return LambdaTransitionsAutomaton();
+LambdaTransitionsAutomaton LambdaTransitionsAutomaton::Concatenate(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B) {
+	LambdaTransitionsAutomaton C;
+	C.m_states.insert(A.m_states.begin(), A.m_states.end());
+	C.m_states.insert(B.m_states.begin(), B.m_states.end());
+	C.m_alphabet.insert(A.m_alphabet.begin(), A.m_alphabet.end());
+	C.m_alphabet.insert(B.m_alphabet.begin(), B.m_alphabet.end());
+	C.m_initialState = A.m_initialState;
+	C.m_finalStates.insert(B.m_finalStates.begin(), B.m_finalStates.end());
+	C.m_transition.insert(A.m_transition.begin(), A.m_transition.end());
+	C.m_transition.insert(B.m_transition.begin(), B.m_transition.end());
+	std::string initialStateB = B.m_initialState;
+	for (const auto& finalStateA : A.m_finalStates) {
+		C.m_transition[{finalStateA, LAMBDA}].push_back(initialStateB);
+		C.m_finalStates.erase(finalStateA);
+	}
+	C.m_states.erase(initialStateB);
+	return C;
 }
 
 LambdaTransitionsAutomaton LambdaTransitionsAutomaton::KleeneClosure(const LambdaTransitionsAutomaton& A, int& nrStates) {
-	return LambdaTransitionsAutomaton();
+	LambdaTransitionsAutomaton B;
+	std::string newInitialState = "q_" + std::to_string(nrStates++);
+	std::string newFinalState = "q_" + std::to_string(nrStates++);
+	B.m_states.insert(A.m_states.begin(), A.m_states.end());
+	B.m_states.insert(newInitialState);
+	B.m_states.insert(newFinalState);
+	B.m_alphabet.insert(A.m_alphabet.begin(), A.m_alphabet.end());
+	B.m_initialState = newInitialState;
+	B.m_finalStates.insert(newFinalState);
+	B.m_transition[{newInitialState, LAMBDA}].push_back(A.m_initialState);
+	B.m_transition[{newInitialState, LAMBDA}].push_back(newFinalState);
+	for (const auto& finalStateA : A.m_finalStates) {
+		B.m_transition[{finalStateA, LAMBDA}].push_back(A.m_initialState);
+		B.m_transition[{finalStateA, LAMBDA}].push_back(newFinalState);
+	}
+	return B;
 }

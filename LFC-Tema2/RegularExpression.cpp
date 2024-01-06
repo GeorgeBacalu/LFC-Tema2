@@ -163,7 +163,7 @@ LambdaTransitionsAutomaton RegularExpression::convertToNFA(const std::string& po
 		else if (ch == '.') {
 			LambdaTransitionsAutomaton B = stackAutomatons.top(); stackAutomatons.pop();
 			LambdaTransitionsAutomaton A = stackAutomatons.top(); stackAutomatons.pop();
-			stackAutomatons.push(LambdaTransitionsAutomaton().Concatenate(A, B, nrStates));
+			stackAutomatons.push(LambdaTransitionsAutomaton().Concatenate(A, B));
 		}
 		else if (ch == '*') {
 			LambdaTransitionsAutomaton A = stackAutomatons.top();
