@@ -129,11 +129,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DeterministicFiniteAutomaton.cpp" />
+    <ClCompile Include="LambdaTransitionsAutomaton.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RegularExpression.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DeterministicFiniteAutomaton.h" />
+    <ClInclude Include="LambdaTransitionsAutomaton.h" />
     <ClInclude Include="RegularExpression.h" />
   </ItemGroup>
   <ItemGroup>
