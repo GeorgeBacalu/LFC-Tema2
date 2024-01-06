@@ -1,44 +1,71 @@
 #include <fstream>
 #include "RegularExpression.h"
 
-DeterministicFiniteAutomaton convertRegexToDFA(const std::string& expression);
+DeterministicFiniteAutomaton ConvertRegexToDFA(const std::string& expression);
 
 int main() {
-	DeterministicFiniteAutomaton dfa;
 	RegularExpression regex;
-	std::ifstream finDFA{ "inputDFA.txt" };
-	if (!finDFA.is_open()) {
-		std::cerr << "Error opening file\n";
-		return -1;
-	}
 	std::ifstream finRE{ "inputRE.txt" };
 	if (!finRE.is_open()) {
-		std::cerr << "Error opening file\n";
+		std::cerr << "Error opening input file\n";
 		return -1;
 	}
-	finDFA >> dfa;
-	if (dfa.VerifyAutomaton()) {
-		std::cout << dfa;
-		std::string word;
-		std::cout << "Enter word to check: ";
-		std::cin >> word;
-		std::cout << "Word is" << (dfa.CheckWord(dfa.GetInitialState(), word) ? " " : " not ") << "accepted!\n\n";
+	std::ofstream foutDFA{ "outputDFA.txt" };
+	if (!foutDFA.is_open()) {
+		std::cerr << "Error opening output file\n";
+		return -1;
 	}
-	else std::cout << "Invalid DFA!\n";
 	finRE >> regex;
-	convertRegexToDFA(regex.GetExpression());
+	int option;
+	DeterministicFiniteAutomaton dfa;
+	do {
+		std::cout << "Command menu:\n";
+		std::cout << "0. Exit\n";
+		std::cout << "1. Transform Regex in DFA and display it to console and output file\n";
+		std::cout << "2. Comprehensively display regex from file\n";
+		std::cout << "3. Check if a word is accepted by DFA\n";
+		std::cout << "Choose option: ";
+		std::cin >> option;
+		switch (option) {
+		case 0: break;
+		case 1:
+			try {
+				dfa = ConvertRegexToDFA(regex.GetExpression());
+				std::cout << "Regex -> Postfix -> NFA -> DFA:\n" << dfa << "\n\n";
+				foutDFA << "Regex -> Postfix -> NFA -> DFA:\n" << dfa << "\n\n";
+			}
+			catch (const std::invalid_argument& exception) {
+				std::cout << exception.what() << "\n";
+			}
+			break;
+		case 2:
+			std::cout << "\nRegex: " << regex << "\n\n";
+			break;
+		case 3:
+			try {
+				dfa = ConvertRegexToDFA(regex.GetExpression());
+				std::cout << "Regex -> Postfix -> NFA -> DFA:\n" << dfa << "\n\n";
+				std::string word;
+				std::cout << "Enter word to check: ";
+				std::cin >> word;
+				std::cout << "Word is" << (dfa.CheckWord(dfa.GetInitialState(), word) ? " " : " not ") << "accepted!\n\n";
+			}
+			catch (const std::invalid_argument& exception) {
+				std::cout << exception.what() << "\n";
+			}
+			break;
+		}
+	} while (option);
 }
 
-DeterministicFiniteAutomaton convertRegexToDFA(const std::string& expression) {
+DeterministicFiniteAutomaton ConvertRegexToDFA(const std::string& expression) {
 	RegularExpression regex{ expression };
 	if (!regex.VerifyExpression())
-		return {};
-	std::cout << "Regex: " << regex << "\n";
+		throw std::invalid_argument("Invalid regular expression");
+	std::cout << "\nRegex: " << regex << "\n\n";
 	std::string postfixForm = regex.ConvertToPostfixForm();
 	std::cout << "Regex -> Postfix: " << postfixForm << "\n\n";
 	LambdaTransitionsAutomaton nfa = regex.convertToNFA(postfixForm);
 	std::cout << "Regex -> Postfix -> NFA:\n" << nfa << "\n\n";
-	DeterministicFiniteAutomaton dfa = regex.convertToDFA(nfa);
-	std::cout << "Regex -> Postfix -> NFA -> DFA:\n" << dfa << "\n\n";
-	return dfa;
+	return regex.convertToDFA(nfa);
 }

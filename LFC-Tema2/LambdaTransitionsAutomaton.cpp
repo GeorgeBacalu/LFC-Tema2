@@ -56,7 +56,7 @@ std::istream& operator>>(std::istream& in, LambdaTransitionsAutomaton& lambdaTra
 }
 
 std::ostream& operator<<(std::ostream& out, const LambdaTransitionsAutomaton& lambdaTransitionsAutomaton) {
-	out << "FNA = ({ ";
+	out << "NFA = ({ ";
 	for (const auto& state : lambdaTransitionsAutomaton.m_states)
 		out << state << " ";
 	out << "}, { ";

@@ -40,10 +40,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="inputDFA.txt">
+    <Text Include="inputRE.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="inputRE.txt">
+    <Text Include="outputDFA.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
