@@ -74,7 +74,7 @@ bool RegularExpression::VerifyOperatorArity() const {
 	return true;
 }
 
-bool RegularExpression::VerifyNonConsecutiveOperands() const  {
+bool RegularExpression::VerifyNonConsecutiveOperands() const {
 	for (size_t i = 0; i < m_expression.length() - 1; ++i)
 		if (std::isalnum(m_expression[i]) && std::isalnum(m_expression[i + 1])) {
 			std::cout << "Invalid regular expression: consecutive operands!\n";
@@ -97,4 +97,55 @@ bool RegularExpression::IsValidRightOperand(char ch) const {
 
 bool RegularExpression::IsValidRightOperandForStar(char ch) const {
 	return ch == '|' || ch == '.';
+}
+
+int RegularExpression::GetPriority(char op) const {
+	switch (op) {
+	case '|': return 1;
+	case '.': return 2;
+	case '*': return 3;
+	default: return 0;
+	}
+}
+
+std::string RegularExpression::ConvertToPostfix() const {
+	if (!VerifyExpression()) {
+		std::cout << "Invalid regular expression: cannot convert to postfix!\n";
+		return "";
+	}
+	std::stack<char> operators, postfix;
+	for (char current : m_expression) {
+		if (isspace(current)) 
+			continue;
+		if (std::isalnum(current))
+			postfix.push(current);
+		else if (current == '(')
+			operators.push(current);
+		else if (current == ')') {
+			while (!operators.empty() && operators.top() != '(') {
+				postfix.push(operators.top());
+				operators.pop();
+			}
+			if (!operators.empty())
+				operators.pop();
+		}
+		else {
+			while (!operators.empty() && GetPriority(operators.top()) >= GetPriority(current)) {
+				postfix.push(operators.top());
+				operators.pop();
+			}
+			operators.push(current);
+		}
+	}
+	while (!operators.empty()) {
+		postfix.push(operators.top());
+		operators.pop();
+	}
+	std::string result;
+	while (!postfix.empty()) {
+		result += postfix.top();
+		postfix.pop();
+	}
+	std::reverse(result.begin(), result.end());
+	return result;
 }

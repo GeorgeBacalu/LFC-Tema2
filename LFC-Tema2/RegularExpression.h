@@ -16,6 +16,7 @@ class RegularExpression {
 	bool IsValidLeftOperand(char ch) const;
 	bool IsValidRightOperand(char ch) const;
 	bool IsValidRightOperandForStar(char ch) const;
+	int GetPriority(char op) const;
 public:
 	RegularExpression();
 	RegularExpression(const std::string& expression);
@@ -26,4 +27,5 @@ public:
 	void SetExpression(const std::string& expression);
 
 	bool VerifyExpression() const;
+	std::string ConvertToPostfix() const;
 };
