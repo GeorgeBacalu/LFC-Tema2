@@ -38,4 +38,5 @@ public:
 
 	bool VerifyAutomaton() const;
 	bool CheckWord(const std::string& currentState, const std::string& word) const;
+	std::string CreateStateName(const std::set<std::string>& states) const;
 };

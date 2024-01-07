@@ -1,4 +1,5 @@
-#include "DeterministicFiniteAutomaton.h"
+﻿#include "DeterministicFiniteAutomaton.h"
+#include <sstream>
 
 DeterministicFiniteAutomaton::DeterministicFiniteAutomaton() : m_states{}, m_alphabet{}, m_initialState{}, m_finalStates{}, m_transition{} {}
 
@@ -154,4 +155,14 @@ bool DeterministicFiniteAutomaton::CheckWord(const std::string& currentState, co
 	}
 	std::cout << "Deadlock!\n";
 	return false;
+}
+
+std::string DeterministicFiniteAutomaton::CreateStateName(const std::set<std::string>& states) const {
+	std::stringstream nameStream;
+	nameStream << "{ ";
+	for (const auto& state : states) {
+		nameStream << state << " ";
+	}
+	nameStream << "}";
+	return nameStream.str();
 }

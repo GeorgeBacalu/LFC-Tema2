@@ -8,14 +8,14 @@
 using TransitionNFA = std::map<std::pair<std::string, std::string>, std::set<std::string>>;
 
 class LambdaTransitionsAutomaton {
-	static const std::string LAMBDA;
-
 	std::set<std::string> m_states;
 	std::set<std::string> m_alphabet;
 	std::string m_initialState;
 	std::set<std::string> m_finalStates;
 	TransitionNFA m_transition;
 public:
+	static const std::string LAMBDA;
+
 	LambdaTransitionsAutomaton();
 	LambdaTransitionsAutomaton(const std::set<std::string>& states, const std::set<std::string>& alphabet, const std::string& initialState, const std::set<std::string>& finalStates, const TransitionNFA& transition);
 	friend std::istream& operator>>(std::istream& in, LambdaTransitionsAutomaton& lambdaTransitionsAutomaton);
@@ -38,5 +38,5 @@ public:
 	static LambdaTransitionsAutomaton KleeneClosure(const LambdaTransitionsAutomaton& A, int& nrStates);
 
 	std::set<std::string> GetLambdaClosure(const std::set<std::string>& states) const;
-	std::set<std::string> Move(const std::set<std::string>& states, const std::string& symbol) const;
+	std::set<std::string> FindReachableStates(const std::set<std::string>& states, const std::string& symbol) const;
 };

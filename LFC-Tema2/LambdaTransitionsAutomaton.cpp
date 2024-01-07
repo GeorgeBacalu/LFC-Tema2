@@ -172,34 +172,33 @@ LambdaTransitionsAutomaton LambdaTransitionsAutomaton::KleeneClosure(const Lambd
 std::set<std::string> LambdaTransitionsAutomaton::GetLambdaClosure(const std::set<std::string>& states) const {
 	std::set<std::string> lambdaClosure = states;
 	std::stack<std::string> stack;
-	// Initialize stack with input states
-	for (const std::string& state : states)
+	// Push input states to stack
+	for (const auto& state : states)
 		stack.push(state);
-	// Traverse DFS to be lambda-closure
 	while (!stack.empty()) {
 		std::string top = stack.top();
 		stack.pop();
-
-		// Consider all lambda-transitions for current state
+		// Get lambda-transitions for current state
 		auto transitionsIt = m_transition.find({ top, LAMBDA });
-		if (transitionsIt != m_transition.end()) // Traverse every state accessible through lambda-transitions
-			for (const std::string& reachableState : transitionsIt->second) // If state is not already in lambda-closure, add it and push it to stack
-				if (lambdaClosure.insert(reachableState).second)
+		if (transitionsIt != m_transition.end()) {
+			const auto& reachableStates = transitionsIt->second;
+			for (const auto& reachableState : reachableStates) 
+				if (lambdaClosure.insert(reachableState).second) // checks whether insertion in set was performed or the state was already in the set
 					stack.push(reachableState);
+		}
 	}
 	return lambdaClosure;
 }
 
-// This method applies a transition on a given symbol for a set of states and returns the set of states that can be reached. 
-// In the context of a finite automaton with lambda-transitions, this would mean finding all the states that can be reached from the current states with a certain symbol, without including lambda-transitions
-std::set<std::string> LambdaTransitionsAutomaton::Move(const std::set<std::string>& states, const std::string& symbol) const {
+// Applies a transition on a given symbol for a set of states and returns the set of states that can be reached. 
+// For NFAs with lambda-transitions, it means finding all the states that can be reached from the current states with a certain symbol, without including lambda-transitions
+std::set<std::string> LambdaTransitionsAutomaton::FindReachableStates(const std::set<std::string>& states, const std::string& symbol) const {
 	std::set<std::string> resultStates;
 	for (const auto& state : states) {
-		// Search for transitions with given symbol from current state
 		auto transitions = m_transition.find({ state, symbol });
 		if (transitions != m_transition.end()) {
-			const auto& nextState = transitions->second;
-			resultStates.insert(nextState.begin(), nextState.end());
+			const auto& nextStates = transitions->second;
+			resultStates.insert(nextStates.begin(), nextStates.end());
 		}
 	}
 	return resultStates;
