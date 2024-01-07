@@ -34,7 +34,7 @@ public:
 	static LambdaTransitionsAutomaton Concatenate(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B);
 	static LambdaTransitionsAutomaton KleeneClosure(const LambdaTransitionsAutomaton& A, int& nrStates);
 
-	DeterministicFiniteAutomaton convertToDFA() const;
+	DeterministicFiniteAutomaton ConvertToDFA() const;
 	std::set<std::string> GetLambdaClosure(const std::set<std::string>& states) const;
 	std::set<std::string> FindReachableStates(const std::set<std::string>& states, const std::string& symbol) const;
 };

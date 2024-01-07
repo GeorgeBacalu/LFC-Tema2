@@ -77,13 +77,13 @@ std::ostream& operator<<(std::ostream& out, const LambdaTransitionsAutomaton& la
 }
 
 LambdaTransitionsAutomaton LambdaTransitionsAutomaton::CreateBasicAutomaton(char ch, int& nrStates) {
-	if (!isalnum(ch))
+	if (!isalnum(ch)) {
 		std::cout << "Invalid automaton: invalid symbol!\n";
-
+		return {};
+	}
 	std::string newInitialState = "q_" + std::to_string(nrStates++);
 	std::string newFinalState = "q_" + std::to_string(nrStates++);
 	std::string symbol = std::string{ ch };
-
 	std::set<std::string> states = { newInitialState, newFinalState };
 	std::set<std::string> alphabet = { symbol };
 	std::string initialState = newInitialState;
@@ -168,35 +168,42 @@ LambdaTransitionsAutomaton LambdaTransitionsAutomaton::KleeneClosure(const Lambd
 	return B;
 }
 
-DeterministicFiniteAutomaton LambdaTransitionsAutomaton::convertToDFA() const {
+DeterministicFiniteAutomaton LambdaTransitionsAutomaton::ConvertToDFA() const {
 	DeterministicFiniteAutomaton dfa;
-	std::set<std::set<std::string>> dfaStates;
+	std::map<std::set<std::string>, std::string> dfaStates;
 	std::queue<std::set<std::string>> dfaStatesQueue;
+	int nrStates = 0;
 
-	auto startState = this->GetLambdaClosure({ this->GetInitialState() });
-	dfaStates.insert(startState);
+	std::set<std::string> startState = GetLambdaClosure({ m_initialState });
 	dfaStatesQueue.push(startState);
-	dfa.SetInitialState(dfa.CreateStateName(startState));
+	dfaStates[startState] = "q'_" + std::to_string(nrStates++);
+	dfa.GetStates().insert(dfaStates[startState]);
+	dfa.SetInitialState(dfaStates[startState]);
+
 	while (!dfaStatesQueue.empty()) {
-		auto currentState = dfaStatesQueue.front();
+		std::set<std::string> currentState = dfaStatesQueue.front();
 		dfaStatesQueue.pop();
-		for (const auto& symbol : this->GetAlphabet())
+		for (const std::string& symbol : m_alphabet) {
 			if (symbol != LambdaTransitionsAutomaton::LAMBDA) {
-				auto nextState = this->GetLambdaClosure(this->FindReachableStates(currentState, symbol));
-				if (!nextState.empty() && !dfaStates.count(nextState)) {
-					dfaStatesQueue.push(nextState);
-					dfaStates.insert(nextState);
-					dfa.GetStates().insert(dfa.CreateStateName(nextState));
+				std::set<std::string> nextState = GetLambdaClosure(FindReachableStates(currentState, symbol));
+				if (!nextState.empty()) {
+					if (!dfaStates.count(nextState)) {
+						std::string newStateName = "q'_" + std::to_string(nrStates++);
+						dfaStatesQueue.push(nextState);
+						dfaStates[nextState] = newStateName;
+						dfa.GetStates().insert(newStateName);
+					}
+					dfa.GetTransition()[{dfaStates[currentState], symbol}] = dfaStates[nextState];
 				}
-				dfa.GetTransition()[{dfa.CreateStateName(currentState), symbol}] = dfa.CreateStateName(nextState);
 			}
-	}
-	for (auto& state : dfaStates)
-		for (auto& nfaState : state)
-			if (this->GetFinalStates().count(nfaState)) {
-				dfa.GetFinalStates().insert(dfa.CreateStateName(state));
+		}
+		for (const std::string& nfaState : currentState) {
+			if (m_finalStates.count(nfaState)) {
+				dfa.GetFinalStates().insert(dfaStates[currentState]);
 				break;
 			}
+		}
+	}
 	return dfa;
 }
 

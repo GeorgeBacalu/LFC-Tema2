@@ -27,5 +27,5 @@ public:
 
 	bool VerifyExpression() const;
 	std::string ConvertToPostfixForm() const;
-	LambdaTransitionsAutomaton convertToNFA(const std::string& postfixForm) const;
+	LambdaTransitionsAutomaton ConvertToNFA(const std::string& postfixForm) const;
 };

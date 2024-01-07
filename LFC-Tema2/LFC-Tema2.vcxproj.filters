@@ -46,7 +46,7 @@
     <Text Include="outputDFA.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="inputNFA.txt">
+    <Text Include="testNFA.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

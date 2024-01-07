@@ -8,12 +8,12 @@ const std::string& RegularExpression::GetExpression() const { return m_expressio
 
 void RegularExpression::SetExpression(const std::string& expression) { m_expression = expression; }
 
-std::istream& operator>>(std::istream& in, RegularExpression& RegularExpression) {
-	return in >> RegularExpression.m_expression;
+std::istream& operator>>(std::istream& in, RegularExpression& regularExpression) {
+	return in >> regularExpression.m_expression;
 }
 
-std::ostream& operator<<(std::ostream& out, const RegularExpression& RegularExpression) {
-	return out << RegularExpression.m_expression;
+std::ostream& operator<<(std::ostream& out, const RegularExpression& regularExpression) {
+	return out << regularExpression.m_expression;
 }
 
 bool RegularExpression::VerifyExpression() const {
@@ -149,7 +149,7 @@ std::string RegularExpression::ConvertToPostfixForm() const {
 	return result;
 }
 
-LambdaTransitionsAutomaton RegularExpression::convertToNFA(const std::string& postfixForm) const {
+LambdaTransitionsAutomaton RegularExpression::ConvertToNFA(const std::string& postfixForm) const {
 	std::stack< LambdaTransitionsAutomaton> stackAutomatons;
 	int nrStates = 0;
 	for (char ch : postfixForm) {

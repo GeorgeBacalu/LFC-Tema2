@@ -139,7 +139,7 @@
     <ClInclude Include="RegularExpression.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="inputNFA.txt" />
+    <Text Include="testNFA.txt" />
     <Text Include="inputRE.txt" />
     <Text Include="outputDFA.txt" />
   </ItemGroup>
