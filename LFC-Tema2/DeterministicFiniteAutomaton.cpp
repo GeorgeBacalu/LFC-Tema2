@@ -1,5 +1,4 @@
 ﻿#include "DeterministicFiniteAutomaton.h"
-#include <sstream>
 
 DeterministicFiniteAutomaton::DeterministicFiniteAutomaton() : m_states{}, m_alphabet{}, m_initialState{}, m_finalStates{}, m_transition{} {}
 
@@ -153,7 +152,6 @@ bool DeterministicFiniteAutomaton::CheckWord(const std::string& currentState, co
 		const auto& nextState = it->second;
 		return CheckWord(nextState, word.substr(1));
 	}
-	std::cout << "Deadlock!\n";
 	return false;
 }
 

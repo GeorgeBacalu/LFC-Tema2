@@ -1,5 +1,4 @@
 ﻿#include "LambdaTransitionsAutomaton.h"
-#include <stack>
 
 const std::string LambdaTransitionsAutomaton::LAMBDA = "@";
 
@@ -167,6 +166,38 @@ LambdaTransitionsAutomaton LambdaTransitionsAutomaton::KleeneClosure(const Lambd
 		B.m_transition[{finalStateA, LAMBDA}].insert(newFinalState);
 	}
 	return B;
+}
+
+DeterministicFiniteAutomaton LambdaTransitionsAutomaton::convertToDFA() const {
+	DeterministicFiniteAutomaton dfa;
+	std::set<std::set<std::string>> dfaStates;
+	std::queue<std::set<std::string>> dfaStatesQueue;
+
+	auto startState = this->GetLambdaClosure({ this->GetInitialState() });
+	dfaStates.insert(startState);
+	dfaStatesQueue.push(startState);
+	dfa.SetInitialState(dfa.CreateStateName(startState));
+	while (!dfaStatesQueue.empty()) {
+		auto currentState = dfaStatesQueue.front();
+		dfaStatesQueue.pop();
+		for (const auto& symbol : this->GetAlphabet())
+			if (symbol != LambdaTransitionsAutomaton::LAMBDA) {
+				auto nextState = this->GetLambdaClosure(this->FindReachableStates(currentState, symbol));
+				if (!nextState.empty() && !dfaStates.count(nextState)) {
+					dfaStatesQueue.push(nextState);
+					dfaStates.insert(nextState);
+					dfa.GetStates().insert(dfa.CreateStateName(nextState));
+				}
+				dfa.GetTransition()[{dfa.CreateStateName(currentState), symbol}] = dfa.CreateStateName(nextState);
+			}
+	}
+	for (auto& state : dfaStates)
+		for (auto& nfaState : state)
+			if (this->GetFinalStates().count(nfaState)) {
+				dfa.GetFinalStates().insert(dfa.CreateStateName(state));
+				break;
+			}
+	return dfa;
 }
 
 std::set<std::string> LambdaTransitionsAutomaton::GetLambdaClosure(const std::set<std::string>& states) const {

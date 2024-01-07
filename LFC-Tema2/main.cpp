@@ -67,5 +67,5 @@ DeterministicFiniteAutomaton ConvertRegexToDFA(const std::string& expression) {
 	std::cout << "Regex -> Postfix: " << postfixForm << "\n\n";
 	LambdaTransitionsAutomaton nfa = regex.convertToNFA(postfixForm);
 	std::cout << "Regex -> Postfix -> NFA:\n" << nfa << "\n\n";
-	return regex.convertToDFA(nfa);
+	return nfa.convertToDFA();
 }

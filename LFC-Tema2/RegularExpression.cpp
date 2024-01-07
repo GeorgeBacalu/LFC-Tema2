@@ -1,5 +1,4 @@
 ﻿#include "RegularExpression.h"
-#include <queue>
 
 RegularExpression::RegularExpression() : m_expression{} {}
 
@@ -172,36 +171,4 @@ LambdaTransitionsAutomaton RegularExpression::convertToNFA(const std::string& po
 		}
 	}
 	return stackAutomatons.top();
-}
-
-DeterministicFiniteAutomaton RegularExpression::convertToDFA(const LambdaTransitionsAutomaton& nfa) const {
-	DeterministicFiniteAutomaton dfa;
-	std::set<std::set<std::string>> dfaStates;
-	std::queue<std::set<std::string>> dfaStatesQueue;
-
-	auto startState = nfa.GetLambdaClosure({ nfa.GetInitialState() });
-	dfaStates.insert(startState);
-	dfaStatesQueue.push(startState);
-	dfa.SetInitialState(dfa.CreateStateName(startState));
-	while (!dfaStatesQueue.empty()) {
-		auto currentState = dfaStatesQueue.front();
-		dfaStatesQueue.pop();
-		for (const auto& symbol : nfa.GetAlphabet())
-			if (symbol != LambdaTransitionsAutomaton::LAMBDA) {
-				auto nextState = nfa.GetLambdaClosure(nfa.FindReachableStates(currentState, symbol));
-				if (!nextState.empty() && !dfaStates.count(nextState)) {
-					dfaStatesQueue.push(nextState);
-					dfaStates.insert(nextState);
-					dfa.GetStates().insert(dfa.CreateStateName(nextState));
-				}
-				dfa.GetTransition()[{dfa.CreateStateName(currentState), symbol}] = dfa.CreateStateName(nextState);
-			}
-	}
-	for (auto& state : dfaStates)
-		for (auto& nfaState : state)
-			if (nfa.GetFinalStates().count(nfaState)) {
-				dfa.GetFinalStates().insert(dfa.CreateStateName(state));
-				break;
-			}
-	return dfa;
 }

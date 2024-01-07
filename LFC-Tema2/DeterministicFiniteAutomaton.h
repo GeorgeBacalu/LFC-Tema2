@@ -2,8 +2,11 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <set>
 #include <map>
+#include <stack>
+#include <queue>
 
 using TransitionDFA = std::map<std::pair<std::string, std::string>, std::string>;
 

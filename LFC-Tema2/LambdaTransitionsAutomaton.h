@@ -1,9 +1,6 @@
 #pragma once
 
-#include <iostream>
-#include <string>
-#include <set>
-#include <map>
+#include "DeterministicFiniteAutomaton.h"
 
 using TransitionNFA = std::map<std::pair<std::string, std::string>, std::set<std::string>>;
 
@@ -37,6 +34,7 @@ public:
 	static LambdaTransitionsAutomaton Concatenate(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B);
 	static LambdaTransitionsAutomaton KleeneClosure(const LambdaTransitionsAutomaton& A, int& nrStates);
 
+	DeterministicFiniteAutomaton convertToDFA() const;
 	std::set<std::string> GetLambdaClosure(const std::set<std::string>& states) const;
 	std::set<std::string> FindReachableStates(const std::set<std::string>& states, const std::string& symbol) const;
 };
