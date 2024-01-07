@@ -1,5 +1,7 @@
-#include "LambdaTransitionsAutomaton.h"
+﻿#include "LambdaTransitionsAutomaton.h"
 #include <stack>
+
+const std::string LambdaTransitionsAutomaton::LAMBDA = "@";
 
 LambdaTransitionsAutomaton::LambdaTransitionsAutomaton() : m_states{}, m_alphabet{}, m_initialState{}, m_finalStates{}, m_transition{} {}
 
@@ -50,7 +52,7 @@ std::istream& operator>>(std::istream& in, LambdaTransitionsAutomaton& lambdaTra
 	for (size_t i = 0; i < nrTransitions; ++i) {
 		std::string currentState, symbol, nextState;
 		in >> currentState >> symbol >> nextState;
-		lambdaTransitionsAutomaton.m_transition[{currentState, symbol }].push_back(nextState);
+		lambdaTransitionsAutomaton.m_transition[{currentState, symbol }].insert(nextState);
 	}
 	return in;
 }
@@ -76,9 +78,9 @@ std::ostream& operator<<(std::ostream& out, const LambdaTransitionsAutomaton& la
 }
 
 LambdaTransitionsAutomaton LambdaTransitionsAutomaton::CreateBasicAutomaton(char ch, int& nrStates) {
-	if (!isalnum(ch)) {
+	if (!isalnum(ch))
 		std::cout << "Invalid automaton: invalid symbol!\n";
-	}
+
 	std::string newInitialState = "q_" + std::to_string(nrStates++);
 	std::string newFinalState = "q_" + std::to_string(nrStates++);
 	std::string symbol = std::string{ ch };
@@ -93,22 +95,22 @@ LambdaTransitionsAutomaton LambdaTransitionsAutomaton::CreateBasicAutomaton(char
 
 LambdaTransitionsAutomaton LambdaTransitionsAutomaton::Union(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B, int& nrStates) {
 	LambdaTransitionsAutomaton C;
+	std::string newInitialState = "q_" + std::to_string(nrStates++);
+	std::string newFinalState = "q_" + std::to_string(nrStates++);
 	C.m_states.insert(A.m_states.begin(), A.m_states.end());
 	C.m_states.insert(B.m_states.begin(), B.m_states.end());
 	C.m_alphabet.insert(A.m_alphabet.begin(), A.m_alphabet.end());
 	C.m_alphabet.insert(B.m_alphabet.begin(), B.m_alphabet.end());
-	std::string newInitialState = "q_" + std::to_string(nrStates++);
-	std::string newFinalState = "q_" + std::to_string(nrStates++);
 	C.m_initialState = newInitialState;
 	C.m_finalStates.insert(newFinalState);
 	C.m_transition.insert(A.m_transition.begin(), A.m_transition.end());
 	C.m_transition.insert(B.m_transition.begin(), B.m_transition.end());
-	C.m_transition[{newInitialState, LAMBDA}].push_back(A.m_initialState);
-	C.m_transition[{newInitialState, LAMBDA}].push_back(B.m_initialState);
+	C.m_transition[{newInitialState, LAMBDA}].insert(A.m_initialState);
+	C.m_transition[{newInitialState, LAMBDA}].insert(B.m_initialState);
 	for (const auto& finalStateA : A.m_finalStates)
-		C.m_transition[{finalStateA, LAMBDA}].push_back(newFinalState);
+		C.m_transition[{finalStateA, LAMBDA}].insert(newFinalState);
 	for (const auto& finalStateB : B.m_finalStates)
-		C.m_transition[{finalStateB, LAMBDA}].push_back(newFinalState);
+		C.m_transition[{finalStateB, LAMBDA}].insert(newFinalState);
 	return C;
 }
 
@@ -122,12 +124,29 @@ LambdaTransitionsAutomaton LambdaTransitionsAutomaton::Concatenate(const LambdaT
 	C.m_finalStates.insert(B.m_finalStates.begin(), B.m_finalStates.end());
 	C.m_transition.insert(A.m_transition.begin(), A.m_transition.end());
 	C.m_transition.insert(B.m_transition.begin(), B.m_transition.end());
-	std::string initialStateB = B.m_initialState;
+	// Transitions leading to initial state of B are redirected to lead to final states of A
 	for (const auto& finalStateA : A.m_finalStates) {
-		C.m_transition[{finalStateA, LAMBDA}].push_back(initialStateB);
-		C.m_finalStates.erase(finalStateA);
+		// Find transitions from initial state of B with each symbol in B alphabet
+		for (const auto& symbol : B.m_alphabet) {
+			auto transitions = B.m_transition.find({ B.m_initialState, symbol });
+			if (transitions != B.m_transition.end()) {
+				const auto& nextStates = transitions->second;
+				for (const auto& nextState : nextStates)
+					C.m_transition[{finalStateA, symbol}].insert(nextState);
+			}
+		}
+		// Add lambda-transitions from final states of A to states that are directly accessible by initial state of B
+		auto lambdaTransitions = B.m_transition.find({ B.m_initialState, LAMBDA });
+		if (lambdaTransitions != B.m_transition.end()) {
+			const auto& nextStates = lambdaTransitions->second;
+			for (const auto& nextState : nextStates)
+				C.m_transition[{finalStateA, LAMBDA}].insert(nextState);
+		}
 	}
-	C.m_states.erase(initialStateB);
+	// Remove initial state of B and final states of A from C states
+	C.m_states.erase(B.m_initialState);
+	for (const auto& finalStateA : A.m_finalStates)
+		C.m_finalStates.erase(finalStateA);
 	return C;
 }
 
@@ -141,11 +160,11 @@ LambdaTransitionsAutomaton LambdaTransitionsAutomaton::KleeneClosure(const Lambd
 	B.m_alphabet.insert(A.m_alphabet.begin(), A.m_alphabet.end());
 	B.m_initialState = newInitialState;
 	B.m_finalStates.insert(newFinalState);
-	B.m_transition[{newInitialState, LAMBDA}].push_back(A.m_initialState);
-	B.m_transition[{newInitialState, LAMBDA}].push_back(newFinalState);
+	B.m_transition[{newInitialState, LAMBDA}].insert(A.m_initialState);
+	B.m_transition[{newInitialState, LAMBDA}].insert(newFinalState);
 	for (const auto& finalStateA : A.m_finalStates) {
-		B.m_transition[{finalStateA, LAMBDA}].push_back(A.m_initialState);
-		B.m_transition[{finalStateA, LAMBDA}].push_back(newFinalState);
+		B.m_transition[{finalStateA, LAMBDA}].insert(A.m_initialState);
+		B.m_transition[{finalStateA, LAMBDA}].insert(newFinalState);
 	}
 	return B;
 }

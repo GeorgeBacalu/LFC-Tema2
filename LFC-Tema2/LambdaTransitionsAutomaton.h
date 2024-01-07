@@ -3,13 +3,12 @@
 #include <iostream>
 #include <string>
 #include <set>
-#include <vector>
 #include <map>
 
-using TransitionNFA = std::map<std::pair<std::string, std::string>, std::vector<std::string>>;
+using TransitionNFA = std::map<std::pair<std::string, std::string>, std::set<std::string>>;
 
 class LambdaTransitionsAutomaton {
-	const std::string LAMBDA = "@";
+	static const std::string LAMBDA;
 
 	std::set<std::string> m_states;
 	std::set<std::string> m_alphabet;
@@ -33,10 +32,10 @@ public:
 	void SetFinalStates(const std::set<std::string>& finalStates);
 	void SetTransition(const TransitionNFA& transition);
 
-	LambdaTransitionsAutomaton CreateBasicAutomaton(char ch, int& nrStates);
-	LambdaTransitionsAutomaton Union(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B, int& nrStates);
-	LambdaTransitionsAutomaton Concatenate(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B);
-	LambdaTransitionsAutomaton KleeneClosure(const LambdaTransitionsAutomaton& A, int& nrStates);
+	static LambdaTransitionsAutomaton CreateBasicAutomaton(char ch, int& nrStates);
+	static LambdaTransitionsAutomaton Union(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B, int& nrStates);
+	static LambdaTransitionsAutomaton Concatenate(const LambdaTransitionsAutomaton& A, const LambdaTransitionsAutomaton& B);
+	static LambdaTransitionsAutomaton KleeneClosure(const LambdaTransitionsAutomaton& A, int& nrStates);
 
 	std::set<std::string> GetLambdaClosure(const std::set<std::string>& states) const;
 	std::set<std::string> Move(const std::set<std::string>& states, const std::string& symbol) const;

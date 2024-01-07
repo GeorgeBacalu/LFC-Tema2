@@ -155,20 +155,20 @@ LambdaTransitionsAutomaton RegularExpression::convertToNFA(const std::string& po
 	int nrStates = 0;
 	for (char ch : postfixForm) {
 		if (std::isalnum(ch))
-			stackAutomatons.push(LambdaTransitionsAutomaton().CreateBasicAutomaton(ch, nrStates));
+			stackAutomatons.push(LambdaTransitionsAutomaton::CreateBasicAutomaton(ch, nrStates));
 		else if (ch == '|') {
 			LambdaTransitionsAutomaton B = stackAutomatons.top(); stackAutomatons.pop();
 			LambdaTransitionsAutomaton A = stackAutomatons.top(); stackAutomatons.pop();
-			stackAutomatons.push(LambdaTransitionsAutomaton().Union(A, B, nrStates));
+			stackAutomatons.push(LambdaTransitionsAutomaton::Union(A, B, nrStates));
 		}
 		else if (ch == '.') {
 			LambdaTransitionsAutomaton B = stackAutomatons.top(); stackAutomatons.pop();
 			LambdaTransitionsAutomaton A = stackAutomatons.top(); stackAutomatons.pop();
-			stackAutomatons.push(LambdaTransitionsAutomaton().Concatenate(A, B));
+			stackAutomatons.push(LambdaTransitionsAutomaton::Concatenate(A, B));
 		}
 		else if (ch == '*') {
 			LambdaTransitionsAutomaton A = stackAutomatons.top();
-			stackAutomatons.push(LambdaTransitionsAutomaton().KleeneClosure(A, nrStates));
+			stackAutomatons.push(LambdaTransitionsAutomaton::KleeneClosure(A, nrStates));
 		}
 	}
 	return stackAutomatons.top();
